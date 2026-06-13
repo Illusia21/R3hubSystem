@@ -1,73 +1,157 @@
-# React + TypeScript + Vite
+# RB Hub Technologies — Clients Monitoring System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based client management system built to replace the company's legacy
+client-tracking setup. Staff can view, search, filter, add, edit, and delete
+client records through a single dashboard.
 
-Currently, two official plugins are available:
+> Status: In development 🚧 — built as a learning project.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack (PERN)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer      | Technology                          |
+| ---------- | ----------------------------------- |
+| Database   | PostgreSQL                          |
+| Backend    | Express (Node.js)                   |
+| Frontend   | React + Vite                        |
+| UI         | shadcn/ui + Tailwind CSS            |
+| Forms      | react-hook-form + zod               |
+| DB driver  | node-postgres (`pg`)                |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- View all clients in a searchable table
+- Filter clients by category
+- Add a new client
+- Edit an existing client
+- Delete a client (with confirmation)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+> Note: Authentication / login is **not** included yet — planned for a later phase.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Data Model
+
+The `clients` table (adjust as you go):
+
+| Column          | Type          | Notes                    |
+| --------------- | ------------- | ------------------------ |
+| id              | SERIAL        | Primary key              |
+| category        | VARCHAR       | e.g. "Agriculture & Energy" |
+| company_name    | VARCHAR       |                          |
+| client_name     | VARCHAR       |                          |
+| contact_number  | VARCHAR       | stored as text, not int  |
+| email           | VARCHAR       |                          |
+| position        | VARCHAR       |                          |
+| created_at      | TIMESTAMP     | default now()            |
+
+---
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS)
+- [PostgreSQL](https://www.postgresql.org/download/)
+- npm (comes with Node)
+
+---
+
+## Getting Started
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Set up the database
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a database in PostgreSQL (via pgAdmin or the `psql` shell):
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sql
+CREATE DATABASE rbhub_clients;
 ```
+
+Then run your table-creation SQL (see Data Model above).
+
+### 3. Set up the backend
+
+```bash
+cd server
+npm install
+```
+
+Create a `.env` file in `/server`:
+
+```
+PORT=5000
+DATABASE_URL=postgresql://<user>:<password>@localhost:5432/rbhub_clients
+```
+
+Start the backend:
+
+```bash
+npm run dev
+```
+
+### 4. Set up the frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The app should now be running at `http://localhost:5173` (frontend)
+talking to `http://localhost:5000` (backend).
+
+---
+
+## Project Structure
+
+```
+.
+├── server/          # Express + Postgres backend
+│   ├── index.js     # entry point
+│   ├── db.js        # database connection
+│   └── routes/      # API routes
+└── client/          # React + shadcn frontend
+    ├── src/
+    │   ├── components/
+    │   └── App.jsx
+    └── ...
+```
+
+> Update this once your actual structure takes shape.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint         | Description           |
+| ------ | ---------------- | --------------------- |
+| GET    | `/clients`       | Get all clients       |
+| GET    | `/clients/:id`   | Get one client        |
+| POST   | `/clients`       | Add a new client      |
+| PUT    | `/clients/:id`   | Update a client       |
+| DELETE | `/clients/:id`   | Delete a client       |
+
+---
+
+## Roadmap
+
+- [ ] Core CRUD (view / add / edit / delete)
+- [ ] Search + category filter
+- [ ] Form validation
+- [ ] Toast notifications
+- [ ] Authentication / login (future)
+- [ ] Deployment
+
+---
+
+## Author
+
+Built by <your-name> for RB Hub Technologies Inc.
