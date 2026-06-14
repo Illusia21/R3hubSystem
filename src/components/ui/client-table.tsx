@@ -1,57 +1,59 @@
+import { useEffect, useState } from "react"
 import { Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+    AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { ClientFormDialog, type Client } from "./client-form-dialog"
+import { API_URL } from "@/lib/api"
 
-// The shape of one client. This matches your future `clients` table columns.
-type Client = {
-    id: number
-    category: string
-    companyName: string
-    clientName: string
-    contactNumber: string
-    email: string
-    position: string
+function formatName(c: Client) {
+    return [c.first_name, c.middle_initial, c.last_name, c.suffix].filter(Boolean).join(" ")
 }
 
-// Temporary mock data — this will come from your API later.
-const clients: Client[] = [
-    {
-        id: 1,
-        category: "Multi-Purpose Cooperative & Bank",
-        companyName: "Agdao Coop",
-        clientName: "Ramon Jr. Gonzales",
-        contactNumber: "09938259712",
-        email: "gonzalesramon14344@gmail.com",
-        position: "I.T Manager",
-    },
-    {
-        id: 2,
-        category: "Agriculture & Energy",
-        companyName: "Anas Breeders Farms Inc.",
-        clientName: "Williard Pernia IV",
-        contactNumber: "09091293125",
-        email: "wvpernia4@abfi.com.ph",
-        position: "IT Manager",
-    },
-    {
-        id: 3,
-        category: "BPO",
-        companyName: "ARC PH",
-        clientName: "Francy Rey Pilapil",
-        contactNumber: "09514133229",
-        email: "it@arcphbpo.com",
-        position: "IT",
-    },
-]
+export function ClientTable({ refreshKey, category, search, onClientChanged }: {
+    refreshKey: number
+    category: string
+    search: string
+    onClientChanged: () => void
+}) {
+    const [clients, setClients] = useState<Client[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
-export function ClientTable() {
+    useEffect(() => {
+        const params = new URLSearchParams()
+        if (category) params.append("category", category)
+        if (search) params.append("search", search)
+
+        fetch(`${API_URL}/clients?${params.toString()}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to load clients")
+                return res.json()
+            })
+            .then((data) => setClients(data))
+            .catch((err) => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [refreshKey, category, search])
+
+    async function handleDelete(id: number) {
+        try {
+            const res = await fetch(`${API_URL}/clients/${id}`, { method: "DELETE" })
+            if (!res.ok) throw new Error("Failed to delete")
+            onClientChanged()
+        } catch {
+            alert("Failed to delete client.")
+        }
+    }
+
+    if (loading) return <p className="p-4 text-muted-foreground">Loading clients...</p>
+    if (error) return <p className="p-4 text-red-500">{error}</p>
+
     return (
         <div className="rounded-md border">
             <Table>
@@ -63,30 +65,65 @@ export function ClientTable() {
                         <TableHead>Contact Number</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Position</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {clients.map((client) => (
-                        <TableRow key={client.id}>
-                            <TableCell>{client.category}</TableCell>
-                            <TableCell>{client.companyName}</TableCell>
-                            <TableCell>{client.clientName}</TableCell>
-                            <TableCell>{client.contactNumber}</TableCell>
-                            <TableCell>{client.email}</TableCell>
-                            <TableCell>{client.position}</TableCell>
-                            <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
-                                    <Button size="icon" variant="outline">
-                                        <Pencil />
-                                    </Button>
-                                    <Button size="icon" variant="destructive">
-                                        <Trash2 />
-                                    </Button>
-                                </div>
+                    {clients.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                                No clients found.
                             </TableCell>
                         </TableRow>
-                    ))}
+                    ) : (
+                        clients.map((client) => (
+                            <TableRow key={client.id}>
+                                <TableCell>{client.category}</TableCell>
+                                <TableCell>{client.company_name}</TableCell>
+                                <TableCell>{formatName(client)}</TableCell>
+                                <TableCell>{client.contact_number}</TableCell>
+                                <TableCell>{client.email || "—"}</TableCell>
+                                <TableCell>{client.position}</TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <ClientFormDialog
+                                            mode="edit"
+                                            client={client}
+                                            onSaved={onClientChanged}
+                                            trigger={
+                                                <Button size="icon" variant="outline">
+                                                    <Pencil />
+                                                </Button>
+                                            }
+                                        />
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button size="icon" variant="destructive">
+                                                    <Trash2 />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete this client?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This permanently removes{" "}
+                                                        <span className="font-semibold">{formatName(client)}</span>{" "}
+                                                        from the database. This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(client.id)}>
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
                 </TableBody>
             </Table>
         </div>

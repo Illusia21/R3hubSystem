@@ -1,151 +1,72 @@
-import { categories, companies, positions } from "@/data/options"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
-    Combobox,
-    ComboboxContent,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-} from "@/components/ui/combobox"
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select"
+import { UserRoundPlus } from "lucide-react"
+import { ClientFormDialog } from "./client-form-dialog"
 
-import { UserRoundPlus } from 'lucide-react';
+const categories = [
+    "PRIVATE EDUCATION", "PUBLIC EDUCATION", "GOVERNMENT",
+    "AGRICULTURE & ENERGY", "CONSTRUCTION", "HEALTHCARE",
+    "LOGISTICS - RETAIL - HOSPITALITY & TOURISM",
+    "MULTI - PURPOSE COOPERATIVE & BANK",
+]
 
-type SearchableComboboxProps = {
-    items: readonly string[]
-    placeholder?: string
-    value?: string | null
-    onValueChange?: (value: string | null) => void
-}
+export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: {
+    onClientAdded: () => void
+    onApplyFilters: (category: string, search: string) => void
+    onClearFilters: () => void
+}) {
+    const [categoryInput, setCategoryInput] = useState("all")
+    const [searchInput, setSearchInput] = useState("")
 
-export function SearchableCombobox({
-    items,
-    placeholder = "-- Select --",
-    value,
-    onValueChange,
-}: SearchableComboboxProps) {
-    return (
-        <Combobox items={items} value={value} onValueChange={onValueChange}>
-            <ComboboxInput placeholder={placeholder} />
-            <ComboboxContent>
-                <ComboboxEmpty>No items found.</ComboboxEmpty>
-                <ComboboxList>
-                    {(item) => (
-                        <ComboboxItem key={item} value={item}>
-                            {item}
-                        </ComboboxItem>
-                    )}
-                </ComboboxList>
-            </ComboboxContent>
-        </Combobox>
-    )
-}
+    const handleSearch = () =>
+        onApplyFilters(categoryInput === "all" ? "" : categoryInput, searchInput.trim())
 
-export function InputInline() {
-    return (
-        <Field orientation="horizontal">
-            <Input type="search" placeholder="Search..." className="w-70" />
-            <Button className="bg-[#0F2342] cursor-pointer hover:bg-[#F15A24]">Search</Button>
-        </Field>
-    )
-}
+    const handleClear = () => {
+        setCategoryInput("all")
+        setSearchInput("")
+        onClearFilters()
+    }
 
-export function InputGrid() {
-    return (
-        <FieldGroup className="grid max-w-xl grid-cols-4">
-            <Field>
-                <FieldLabel htmlFor="first-name">First Name</FieldLabel>
-                <Input id="first-name" placeholder="Jordan" />
-            </Field>
-            <Field>
-                <FieldLabel htmlFor="middle-intial">Middle Initial</FieldLabel>
-                <Input id="middle-intial" placeholder="Jordan" />
-            </Field>
-            <Field>
-                <FieldLabel htmlFor="last-name">Last Name</FieldLabel>
-                <Input id="last-name" placeholder="Lee" />
-            </Field>
-            <Field>
-                <FieldLabel htmlFor="Suffix">Suffix</FieldLabel>
-                <Input id="Suffix" placeholder="Lee" />
-            </Field>
-        </FieldGroup>
-    )
-}
-
-
-export function Tabletoolbar() {
     return (
         <div className="flex justify-between mb-4 gap-2">
-            <div>
-                <Dialog modal={false}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="cursor-pointer">
-                            <UserRoundPlus />
-                            Add Client
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-xl">
-                        <DialogHeader>
-                            <DialogTitle>Add Client</DialogTitle>
-                            <DialogDescription>
-                                Add client details to R3hub database.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <FieldGroup>
-                            <Field>
-                                <Label>Category</Label>
-                                <SearchableCombobox items={categories} placeholder="-- Select Category --" />
+            <ClientFormDialog
+                mode="add"
+                onSaved={onClientAdded}
+                trigger={
+                    <Button variant="outline" className="cursor-pointer">
+                        <UserRoundPlus />
+                        Add Client
+                    </Button>
+                }
+            />
 
-                            </Field>
-                            <Field>
-                                <Label htmlFor="name-1">Company Name</Label>
-                                <SearchableCombobox items={companies} placeholder="-- Select Category --" />
+            <div className="flex gap-2">
+                <Select value={categoryInput} onValueChange={setCategoryInput}>
+                    <SelectTrigger className="w-56">
+                        <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {categories.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
 
-                            </Field>
-                            <Field>
-                                <InputGrid />
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="form-phone">Phone</FieldLabel>
-                                <Input id="form-phone" type="tel" placeholder="+63 9XX XXX XXX" />
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="form-email">Email</FieldLabel>
-                                <Input id="form-email" type="email" placeholder="john@example.com" />
-                            </Field>
-                            <Field>
-                                <Label>Position</Label>
-                                <SearchableCombobox items={positions} placeholder="-- Select Category --" />
-                            </Field>
-                        </FieldGroup>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                            <Button type="submit">Save changes</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
-            <div>
-                <InputInline />
+                <Input
+                    placeholder="Search..."
+                    className="w-56"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                />
+                <Button onClick={handleSearch}>Search</Button>
+                <Button variant="outline" onClick={handleClear}>Clear</Button>
             </div>
         </div>
     )
 }
-
-
