@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, ChevronUp, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -16,6 +16,10 @@ function formatName(c: Client) {
     return [c.first_name, c.middle_initial, c.last_name, c.suffix].filter(Boolean).join(" ")
 }
 
+type SortKey =
+    | "category" | "company_name" | "client_name"
+    | "contact_number" | "email" | "position"
+
 export function ClientTable({ refreshKey, category, search, onClientChanged }: {
     refreshKey: number
     category: string
@@ -25,6 +29,8 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
     const [clients, setClients] = useState<Client[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [sortKey, setSortKey] = useState<SortKey>("category")
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
 
     useEffect(() => {
         const params = new URLSearchParams()
@@ -51,6 +57,44 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
         }
     }
 
+    function sortValue(c: Client, key: SortKey): string {
+        if (key === "client_name") return formatName(c)
+        return (c[key] ?? "") as string
+    }
+
+    function toggleSort(key: SortKey) {
+        if (key === sortKey) {
+            setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+        } else {
+            setSortKey(key)
+            setSortDir("asc")
+        }
+    }
+
+    const sortedClients = [...clients].sort((a, b) => {
+        const cmp = sortValue(a, sortKey).toLowerCase()
+            .localeCompare(sortValue(b, sortKey).toLowerCase())
+        return sortDir === "asc" ? cmp : -cmp
+    })
+
+    // Clickable header cell
+    function SortableHeader({ label, k }: { label: string; k: SortKey }) {
+        return (
+            <TableHead>
+                <button
+                    onClick={() => toggleSort(k)}
+                    className="flex items-center gap-1 hover:text-foreground cursor-pointer"
+                >
+                    {label}
+                    {sortKey === k &&
+                        (sortDir === "asc"
+                            ? <ChevronUp className="size-3" />
+                            : <ChevronDown className="size-3" />)}
+                </button>
+            </TableHead>
+        )
+    }
+
     if (loading) return <p className="p-4 text-muted-foreground">Loading clients...</p>
     if (error) return <p className="p-4 text-red-500">{error}</p>
 
@@ -59,24 +103,24 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Company Name</TableHead>
-                        <TableHead>Client Name</TableHead>
-                        <TableHead>Contact Number</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Position</TableHead>
+                        <SortableHeader label="Category" k="category" />
+                        <SortableHeader label="Company Name" k="company_name" />
+                        <SortableHeader label="Client Name" k="client_name" />
+                        <SortableHeader label="Contact Number" k="contact_number" />
+                        <SortableHeader label="Email" k="email" />
+                        <SortableHeader label="Position" k="position" />
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {clients.length === 0 ? (
+                    {sortedClients.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
                                 No clients found.
                             </TableCell>
                         </TableRow>
                     ) : (
-                        clients.map((client) => (
+                        sortedClients.map((client) => (
                             <TableRow key={client.id}>
                                 <TableCell>{client.category}</TableCell>
                                 <TableCell>{client.company_name}</TableCell>
