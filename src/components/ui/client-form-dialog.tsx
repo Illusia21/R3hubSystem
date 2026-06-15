@@ -23,9 +23,10 @@ export type Client = {
     middle_initial: string | null
     last_name: string
     suffix: string | null
-    contact_number: string
+    contact_number: string | null
     email: string | null
     position: string
+    created_at: string   // <-- add this line
 }
 
 const categories = [
