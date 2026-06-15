@@ -102,14 +102,14 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
         <div className="rounded-md border">
             <Table>
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-[#F2F2F2]">
                         <SortableHeader label="Category" k="category" />
                         <SortableHeader label="Company Name" k="company_name" />
                         <SortableHeader label="Client Name" k="client_name" />
                         <SortableHeader label="Contact Number" k="contact_number" />
                         <SortableHeader label="Email" k="email" />
                         <SortableHeader label="Position" k="position" />
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

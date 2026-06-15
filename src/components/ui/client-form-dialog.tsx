@@ -11,6 +11,9 @@ import {
     Combobox, ComboboxContent, ComboboxEmpty,
     ComboboxInput, ComboboxItem, ComboboxList,
 } from "@/components/ui/combobox"
+import {
+    companies
+} from "@/data/options"
 
 export type Client = {
     id: number
@@ -31,7 +34,7 @@ const categories = [
     "LOGISTICS - RETAIL - HOSPITALITY & TOURISM",
     "MULTI - PURPOSE COOPERATIVE & BANK",
 ]
-const companies = ["Agdao Coop", "Anas Breeders Farms Inc.", "Anflocor", "ARC PH"]
+
 const positions = [
     "IT Manager", "IT Specialist", "Sr. System Administrator",
     "DBA & InfoSec", "Lead Infra & Cybersecurity",
@@ -158,7 +161,9 @@ export function ClientFormDialog({ mode, client, onSaved, trigger }: {
                             onChange={(e) => update("company_name", e.target.value)}
                             placeholder="Type or pick a company" />
                         <datalist id="company-options">
-                            {companies.map((c) => <option key={c} value={c} />)}
+                            {companies.map((c) => (
+                                <option key={c} value={c} />
+                            ))}
                         </datalist>
                     </Field>
 
@@ -206,9 +211,9 @@ export function ClientFormDialog({ mode, client, onSaved, trigger }: {
 
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
+                        <Button variant="outline" className="cursor-pointer">Cancel</Button>
                     </DialogClose>
-                    <Button onClick={handleSubmit} disabled={saving}>
+                    <Button onClick={handleSubmit} disabled={saving} className="bg-[#0F2342] hover:bg-[#0F2342]/80 cursor-pointer">
                         {saving ? "Saving..." : mode === "add" ? "Add Client" : "Save Changes"}
                     </Button>
                 </DialogFooter>

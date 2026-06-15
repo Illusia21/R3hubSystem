@@ -64,8 +64,8 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
-                <Button onClick={handleSearch}>Search</Button>
-                <Button variant="outline" onClick={handleClear}>Clear</Button>
+                <Button onClick={handleSearch} className="bg-[#0F2342] hover:bg-[#0F2342]/80 cursor-pointer">Search</Button>
+                <Button variant="outline" onClick={handleClear} className="cursor-pointer">Clear</Button>
             </div>
         </div>
     )
