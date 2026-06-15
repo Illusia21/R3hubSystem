@@ -9,6 +9,7 @@ import {
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
     AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { ThreeDot } from "react-loading-indicators";
 import { ClientFormDialog, type Client } from "./client-form-dialog"
 import { API_URL } from "@/lib/api"
 
@@ -95,8 +96,13 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
         )
     }
 
-    if (loading) return <p className="p-4 text-muted-foreground">Loading clients...</p>
+    if (loading) return (
+        <div className="flex justify-center items-center py-10">
+            <ThreeDot color="#000000" size="medium" />
+        </div>
+    )
     if (error) return <p className="p-4 text-red-500">{error}</p>
+
 
     return (
         <div className="rounded-md border overflow-hidden">
