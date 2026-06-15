@@ -11,6 +11,7 @@ import {
     Combobox, ComboboxContent, ComboboxEmpty,
     ComboboxInput, ComboboxItem, ComboboxList,
 } from "@/components/ui/combobox"
+import { toast } from "sonner"
 import {
     companies
 } from "@/data/options"
@@ -130,8 +131,14 @@ export function ClientFormDialog({ mode, client, onSaved, trigger }: {
             if (!res.ok) throw new Error("Failed")
             setOpen(false)
             onSaved()
+            if (mode === "add") {
+                toast.success("Client added")     // 🟢 green
+            } else {
+                toast.info("Client updated")      // 🔵 blue
+            }
         } catch {
             setErrorMsg("Something went wrong while saving.")
+            toast.error("Couldn't save client")
         } finally {
             setSaving(false)
         }

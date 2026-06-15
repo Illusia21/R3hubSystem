@@ -13,6 +13,7 @@ import {
     AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ClientFormDialog, type Client } from "./client-form-dialog"
+import { toast } from "sonner"
 import { API_URL } from "@/lib/api"
 
 function formatName(c: Client) {
@@ -60,7 +61,10 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
             const res = await fetch(`${API_URL}/clients/${id}`, { method: "DELETE" })
             if (!res.ok) throw new Error("Failed to delete")
             onClientChanged()
-        } catch { alert("Failed to delete client.") }
+            toast.error("Client deleted")        // 🔴 red
+        } catch {
+            toast.error("Couldn't delete client")
+        }
     }
 
     function sortValue(c: Client, key: SortKey): string {
@@ -116,7 +120,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                         <SortableHeader label="Email" k="email" />
                         <SortableHeader label="Position" k="position" />
                         <SortableHeader label="Date Added" k="date_added" />
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -136,8 +140,8 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                                 <TableCell className="whitespace-normal break-words align-top max-w-[180px]">{client.email || "—"}</TableCell>
                                 <TableCell className="whitespace-normal align-top">{client.position}</TableCell>
                                 <TableCell className="align-top whitespace-nowrap">{formatDate(client.created_at)}</TableCell>
-                                <TableCell className="text-right align-top">
-                                    <div className="flex justify-end gap-2">
+                                <TableCell className="text-center align-top border-2">
+                                    <div className="flex justify-center gap-2">
                                         <ClientFormDialog mode="edit" client={client} onSaved={onClientChanged}
                                             trigger={<Button size="icon" variant="outline"><Pencil /></Button>} />
                                         <AlertDialog>

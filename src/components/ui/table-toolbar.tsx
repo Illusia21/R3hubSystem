@@ -46,7 +46,7 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
 
             <div className="flex gap-2">
                 <Select value={categoryInput} onValueChange={setCategoryInput}>
-                    <SelectTrigger className="w-56">
+                    <SelectTrigger className="w-56 caret-transparent">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>

@@ -4,6 +4,7 @@ import { AppSidebar } from "./components/ui/app-sidebar"
 import { Topbar } from "./components/ui/topbar"
 import { ClientTable } from "./components/ui/client-table"
 import { Tabletoolbar } from "./components/ui/table-toolbar"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function App() {
   const [active, setActive] = useState("Client Details")
@@ -17,6 +18,14 @@ export default function App() {
 
   return (
     <SidebarProvider>
+      <Toaster
+        richColors
+        position="top-center"
+        toastOptions={{
+          className: "font-sans",
+          style: { width: "fit-content" },
+        }}
+      />
       <AppSidebar active={active} setActive={setActive} />
       <SidebarInset>
         <Topbar title={active} />

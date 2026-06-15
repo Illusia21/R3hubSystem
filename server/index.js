@@ -29,7 +29,7 @@ app.get("/clients", async (req, res) => {
 
         const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""
         const result = await pool.query(
-            `SELECT * FROM clients ${where} ORDER BY id ASC`,
+            `SELECT * FROM clients ${where} ORDER BY id DESC`,
             values
         )
         res.json(result.rows)
