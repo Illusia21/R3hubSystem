@@ -99,7 +99,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
     if (error) return <p className="p-4 text-red-500">{error}</p>
 
     return (
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-hidden">
             <Table>
                 <TableHeader>
                     <TableRow className="bg-[#F2F2F2] text-center">
