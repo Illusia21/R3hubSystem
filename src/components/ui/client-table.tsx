@@ -83,7 +83,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
             <TableHead>
                 <button
                     onClick={() => toggleSort(k)}
-                    className="flex items-center gap-1 hover:text-foreground cursor-pointer"
+                    className="flex items-center gap-1 hover:text-foreground cursor-pointer w-full justify-center"
                 >
                     {label}
                     {sortKey === k &&
@@ -102,7 +102,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
         <div className="rounded-md border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-[#F2F2F2]">
+                    <TableRow className="bg-[#F2F2F2] text-center">
                         <SortableHeader label="Category" k="category" />
                         <SortableHeader label="Company Name" k="company_name" />
                         <SortableHeader label="Client Name" k="client_name" />
@@ -122,14 +122,14 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                     ) : (
                         sortedClients.map((client) => (
                             <TableRow key={client.id}>
-                                <TableCell>{client.category}</TableCell>
-                                <TableCell>{client.company_name}</TableCell>
-                                <TableCell>{formatName(client)}</TableCell>
-                                <TableCell>{client.contact_number}</TableCell>
-                                <TableCell>{client.email || "—"}</TableCell>
-                                <TableCell>{client.position}</TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
+                                <TableCell className="text-center">{client.category}</TableCell>
+                                <TableCell className="text-center">{client.company_name}</TableCell>
+                                <TableCell className="text-center">{formatName(client)}</TableCell>
+                                <TableCell className="text-center">{client.contact_number}</TableCell>
+                                <TableCell className="text-center">{client.email || "—"}</TableCell>
+                                <TableCell className="text-center">{client.position}</TableCell>
+                                <TableCell className="text-center">
+                                    <div className="flex justify-center gap-2">
                                         <ClientFormDialog
                                             mode="edit"
                                             client={client}
