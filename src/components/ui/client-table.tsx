@@ -84,7 +84,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
             <TableHead>
                 <button
                     onClick={() => toggleSort(k)}
-                    className="flex items-center gap-1 hover:text-foreground cursor-pointer w-full justify-start"
+                    className="flex items-center gap-1 hover:text-foreground cursor-pointer w-full justify-center"
                 >
                     {label}
                     {sortKey === k &&
@@ -128,12 +128,12 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                     ) : (
                         sortedClients.map((client) => (
                             <TableRow key={client.id}>
-                                <TableCell>{client.category}</TableCell>
-                                <TableCell>{client.company_name}</TableCell>
-                                <TableCell>{formatName(client)}</TableCell>
-                                <TableCell>{client.contact_number}</TableCell>
-                                <TableCell>{client.email || "—"}</TableCell>
-                                <TableCell>{client.position}</TableCell>
+                                <TableCell className="text-center">{client.category}</TableCell>
+                                <TableCell className="text-center">{client.company_name}</TableCell>
+                                <TableCell className="text-center">{formatName(client)}</TableCell>
+                                <TableCell className="text-center">{client.contact_number}</TableCell>
+                                <TableCell className="text-center">{client.email || "—"}</TableCell>
+                                <TableCell className="text-center">{client.position}</TableCell>
                                 <TableCell>
                                     <div className="flex justify-center gap-2">
                                         <ClientFormDialog
