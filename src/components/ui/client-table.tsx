@@ -110,6 +110,37 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
 
     return (
         <div className="rounded-md border">
+            {/* Pagination — now on top */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b px-3 py-3">
+                <span className="text-sm text-muted-foreground">
+                    {sortedClients.length} client{sortedClients.length === 1 ? "" : "s"} total
+                </span>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm">Rows per page</span>
+                        <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                            <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {[10, 20, 50, 100].map((n) => (
+                                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <span className="text-sm">Page {page} of {totalPages}</span>
+                    <div className="flex gap-1">
+                        <Button variant="outline" size="icon" disabled={page === 1}
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                            <ChevronLeft />
+                        </Button>
+                        <Button variant="outline" size="icon" disabled={page >= totalPages}
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+                            <ChevronRight />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -140,7 +171,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                                 <TableCell className="whitespace-normal break-words align-top max-w-[180px]">{client.email || "—"}</TableCell>
                                 <TableCell className="whitespace-normal align-top">{client.position}</TableCell>
                                 <TableCell className="align-top whitespace-nowrap">{formatDate(client.created_at)}</TableCell>
-                                <TableCell className="text-center align-top border-2">
+                                <TableCell className="text-center align-top">
                                     <div className="flex justify-center gap-2">
                                         <ClientFormDialog mode="edit" client={client} onSaved={onClientChanged}
                                             trigger={<Button size="icon" variant="outline"><Pencil /></Button>} />
@@ -170,37 +201,6 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
                     )}
                 </TableBody>
             </Table>
-
-            {/* Pagination footer */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t px-3 py-3">
-                <span className="text-sm text-muted-foreground">
-                    {sortedClients.length} client{sortedClients.length === 1 ? "" : "s"} total
-                </span>
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm">Rows per page</span>
-                        <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
-                            <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {[10, 20, 50, 100].map((n) => (
-                                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <span className="text-sm">Page {page} of {totalPages}</span>
-                    <div className="flex gap-1">
-                        <Button variant="outline" size="icon" disabled={page === 1}
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}>
-                            <ChevronLeft />
-                        </Button>
-                        <Button variant="outline" size="icon" disabled={page >= totalPages}
-                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
-                            <ChevronRight />
-                        </Button>
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }
