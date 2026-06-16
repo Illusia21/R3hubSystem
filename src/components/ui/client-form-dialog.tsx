@@ -201,7 +201,7 @@ export function ClientFormDialog({ mode, client, onSaved, trigger }: {
                             onChange={(e) => update("contact_number", e.target.value.replace(/\D/g, "").slice(0, 11))} />
                     </Field>
                     <Field>
-                        <FieldLabel>Email (optional)</FieldLabel>
+                        <FieldLabel>Email</FieldLabel>
                         <Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="john@example.com" />
                     </Field>
                     <Field>

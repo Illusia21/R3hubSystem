@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "./components/ui/app-sidebar"
 import { Topbar } from "./components/ui/topbar"
 import { ClientTable } from "./components/ui/client-table"
@@ -18,31 +19,33 @@ export default function App() {
 
   return (
     <SidebarProvider>
-      <Toaster
-        richColors
-        position="top-center"
-        toastOptions={{
-          className: "font-sans",
-          style: { width: "fit-content" },
-        }}
-      />
-      <AppSidebar active={active} setActive={setActive} />
-      <SidebarInset>
-        <Topbar title={active} />
-        <div className="p-4">
-          <Tabletoolbar
-            onClientAdded={refreshClients}
-            onApplyFilters={applyFilters}
-            onClearFilters={clearFilters}
-          />
-          <ClientTable
-            refreshKey={refreshKey}
-            category={category}
-            search={search}
-            onClientChanged={refreshClients}
-          />
-        </div>
-      </SidebarInset>
+      <TooltipProvider>
+        <Toaster
+          richColors
+          position="top-center"
+          toastOptions={{
+            className: "font-sans",
+            style: { width: "fit-content" },
+          }}
+        />
+        <AppSidebar active={active} setActive={setActive} />
+        <SidebarInset className="min-w-0">
+          <Topbar title={active} />
+          <div className="p-4 min-w-0">
+            <Tabletoolbar
+              onClientAdded={refreshClients}
+              onApplyFilters={applyFilters}
+              onClearFilters={clearFilters}
+            />
+            <ClientTable
+              refreshKey={refreshKey}
+              category={category}
+              search={search}
+              onClientChanged={refreshClients}
+            />
+          </div>
+        </SidebarInset>
+      </TooltipProvider>
     </SidebarProvider>
   )
 }

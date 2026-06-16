@@ -32,7 +32,7 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
     }
 
     return (
-        <div className="flex justify-between mb-4 gap-2">
+        <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <ClientFormDialog
                 mode="add"
                 onSaved={onClientAdded}
@@ -44,9 +44,9 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
                 }
             />
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Select value={categoryInput} onValueChange={setCategoryInput}>
-                    <SelectTrigger className="w-56 caret-transparent">
+                    <SelectTrigger className="w-full sm:w-56 caret-transparent">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -59,7 +59,7 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
 
                 <Input
                     placeholder="Search..."
-                    className="w-56"
+                    className="w-full sm:w-56"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}

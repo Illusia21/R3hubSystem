@@ -45,6 +45,7 @@ export function AppSidebar({ active, setActive }: AppSidebarProps) {
                                         className="py-5 cursor-pointer"
                                         isActive={active === item.title}
                                         onClick={() => setActive(item.title)}
+                                        tooltip={item.title}
                                     >
                                         <item.icon />
                                         <span className="text-base font-normal">{item.title}</span>
