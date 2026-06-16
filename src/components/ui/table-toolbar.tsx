@@ -10,8 +10,8 @@ import { ClientFormDialog } from "./client-form-dialog"
 const categories = [
     "PRIVATE EDUCATION", "PUBLIC EDUCATION", "GOVERNMENT",
     "AGRICULTURE & ENERGY", "CONSTRUCTION", "HEALTHCARE",
-    "LOGISTICS - RETAIL - HOSPITALITY & TOURISM",
-    "MULTI - PURPOSE COOPERATIVE & BANK",
+    "LOGISTICS-RETAIL-HOSPITALITY & TOURISM",
+    "MULTI-PURPOSE COOPERATIVE & BANK",
 ]
 
 export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: {
