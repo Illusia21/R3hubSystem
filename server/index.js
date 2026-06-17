@@ -23,7 +23,7 @@ app.get("/clients", async (req, res) => {
             values.push(`%${search}%`)
             const i = values.length
             conditions.push(
-                `(company_name ILIKE $${i} OR first_name ILIKE $${i} OR last_name ILIKE $${i} OR email ILIKE $${i})`
+                `(company_name ILIKE $${i} OR first_name ILIKE $${i} OR last_name ILIKE $${i} OR email ILIKE $${i} OR position ILIKE $${i})`
             )
         }
 

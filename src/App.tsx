@@ -15,8 +15,6 @@ export default function App() {
   const [search, setSearch] = useState("")
 
   const refreshClients = () => setRefreshKey((k) => k + 1)
-  const applyFilters = (cat: string, term: string) => { setCategory(cat); setSearch(term) }
-  const clearFilters = () => { setCategory(""); setSearch("") }
 
   return (
     <SidebarProvider>
@@ -37,8 +35,10 @@ export default function App() {
               <>
                 <Tabletoolbar
                   onClientAdded={refreshClients}
-                  onApplyFilters={applyFilters}
-                  onClearFilters={clearFilters}
+                  category={category}
+                  search={search}
+                  onCategoryChange={setCategory}
+                  onSearchChange={setSearch}
                 />
                 <ClientTable
                   refreshKey={refreshKey}

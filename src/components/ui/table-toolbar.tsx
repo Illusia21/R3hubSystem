@@ -1,36 +1,25 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
-import { UserRoundPlus } from "lucide-react"
+import { UserRoundPlus, Search } from "lucide-react"
 import { ClientFormDialog } from "./client-form-dialog"
 
 const categories = [
     "PRIVATE EDUCATION", "PUBLIC EDUCATION", "GOVERNMENT",
     "AGRICULTURE & ENERGY", "CONSTRUCTION", "HEALTHCARE",
-    "LOGISTICS-RETAIL-HOSPITALITY & TOURISM",
-    "MULTI-PURPOSE COOPERATIVE & BANK",
+    "LOGISTICS - RETAIL - HOSPITALITY & TOURISM",
+    "MULTI - PURPOSE COOPERATIVE & BANK",
 ]
 
-export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: {
+export function Tabletoolbar({ onClientAdded, category, search, onCategoryChange, onSearchChange }: {
     onClientAdded: () => void
-    onApplyFilters: (category: string, search: string) => void
-    onClearFilters: () => void
+    category: string
+    search: string
+    onCategoryChange: (value: string) => void
+    onSearchChange: (value: string) => void
 }) {
-    const [categoryInput, setCategoryInput] = useState("all")
-    const [searchInput, setSearchInput] = useState("")
-
-    const handleSearch = () =>
-        onApplyFilters(categoryInput === "all" ? "" : categoryInput, searchInput.trim())
-
-    const handleClear = () => {
-        setCategoryInput("all")
-        setSearchInput("")
-        onClearFilters()
-    }
-
     return (
         <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <ClientFormDialog
@@ -44,8 +33,8 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
                 }
             />
 
-            <div className="flex flex-wrap gap-2">
-                <Select value={categoryInput} onValueChange={setCategoryInput}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Select value={category || "all"} onValueChange={(v) => onCategoryChange(v === "all" ? "" : v)}>
                     <SelectTrigger className="w-full sm:w-56 caret-transparent">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
@@ -57,15 +46,15 @@ export function Tabletoolbar({ onClientAdded, onApplyFilters, onClearFilters }: 
                     </SelectContent>
                 </Select>
 
-                <Input
-                    placeholder="Search..."
-                    className="w-full sm:w-56"
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
-                <Button onClick={handleSearch} className="bg-[#0F2342] hover:bg-[#0F2342]/80 cursor-pointer">Search</Button>
-                <Button variant="outline" onClick={handleClear} className="cursor-pointer">Clear</Button>
+                <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        className="pl-9"
+                        placeholder="Search..."
+                        value={search}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                </div>
             </div>
         </div>
     )

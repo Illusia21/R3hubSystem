@@ -43,15 +43,12 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
     const [pageSize, setPageSize] = useState(10)
 
     useEffect(() => {
-        const params = new URLSearchParams()
-        if (category) params.append("category", category)
-        if (search) params.append("search", search)
-        fetch(`${API_URL}/clients?${params.toString()}`)
+        fetch(`${API_URL}/clients`)
             .then((res) => { if (!res.ok) throw new Error("Failed to load clients"); return res.json() })
             .then((data) => setClients(data))
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false))
-    }, [refreshKey, category, search])
+    }, [refreshKey])
 
     // Jump back to page 1 whenever the filtering/sorting/page size changes
     useEffect(() => { setPage(1) }, [category, search, sortKey, sortDir, pageSize])
@@ -76,9 +73,23 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
         else { setSortKey(key); setSortDir("asc") }
     }
 
+    // filter client-side (instant, like the attendees page)
+    const term = search.trim().toLowerCase()
+    const visible = clients.filter((c) => {
+        const matchesCategory = !category || c.category === category
+        const matchesSearch =
+            !term ||
+            c.company_name.toLowerCase().includes(term) ||
+            c.first_name.toLowerCase().includes(term) ||
+            c.last_name.toLowerCase().includes(term) ||
+            (c.email ?? "").toLowerCase().includes(term) ||
+            (c.position ?? "").toLowerCase().includes(term)
+        return matchesCategory && matchesSearch
+    })
+
     const sortedClients = sortKey === null
-        ? clients
-        : [...clients].sort((a, b) => {
+        ? visible
+        : [...visible].sort((a, b) => {
             let cmp: number
             if (sortKey === "date_added") cmp = a.id - b.id
             else cmp = sortValue(a, sortKey).toLowerCase().localeCompare(sortValue(b, sortKey).toLowerCase())
