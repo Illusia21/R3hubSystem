@@ -1,4 +1,4 @@
-import { Home, Briefcase } from "lucide-react"
+import { Home, Briefcase, CalendarCheck } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -13,6 +13,7 @@ import {
 const items = [
     { title: "Home", icon: Home },
     { title: "Client Details", icon: Briefcase },
+    { title: "Event Attendance", icon: CalendarCheck },
 ]
 
 type AppSidebarProps = {
@@ -38,7 +39,7 @@ export function AppSidebar({ active, setActive }: AppSidebarProps) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-2">
+                        <SidebarMenu className="gap-2 caret-transparent">
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton
@@ -48,7 +49,7 @@ export function AppSidebar({ active, setActive }: AppSidebarProps) {
                                         tooltip={item.title}
                                     >
                                         <item.icon />
-                                        <span className="text-base font-normal">{item.title}</span>
+                                        <span>{item.title}</span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}

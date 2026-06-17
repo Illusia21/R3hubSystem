@@ -5,6 +5,7 @@ import { AppSidebar } from "./components/ui/app-sidebar"
 import { Topbar } from "./components/ui/topbar"
 import { ClientTable } from "./components/ui/client-table"
 import { Tabletoolbar } from "./components/ui/table-toolbar"
+import { EventAttendance } from "./components/ui/event-attendance"
 import { Toaster } from "@/components/ui/sonner"
 
 export default function App() {
@@ -32,17 +33,29 @@ export default function App() {
         <SidebarInset className="min-w-0">
           <Topbar title={active} />
           <div className="p-4 min-w-0">
-            <Tabletoolbar
-              onClientAdded={refreshClients}
-              onApplyFilters={applyFilters}
-              onClearFilters={clearFilters}
-            />
-            <ClientTable
-              refreshKey={refreshKey}
-              category={category}
-              search={search}
-              onClientChanged={refreshClients}
-            />
+            {active === "Client Details" && (
+              <>
+                <Tabletoolbar
+                  onClientAdded={refreshClients}
+                  onApplyFilters={applyFilters}
+                  onClearFilters={clearFilters}
+                />
+                <ClientTable
+                  refreshKey={refreshKey}
+                  category={category}
+                  search={search}
+                  onClientChanged={refreshClients}
+                />
+              </>
+            )}
+
+            {active === "Event Attendance" && <EventAttendance />}
+
+            {active === "Home" && (
+              <div className="text-muted-foreground">
+                Welcome to R3 Hub. Pick a section from the sidebar.
+              </div>
+            )}
           </div>
         </SidebarInset>
       </TooltipProvider>

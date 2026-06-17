@@ -99,6 +99,98 @@ app.put("/clients/:id", async (req, res) => {
     }
 })
 
+// ===== ATTENDEES (Event Attendance) =====
+
+// GET all attendees (optional ?search= by name or company)
+app.get("/attendees", async (req, res) => {
+    try {
+        const { search } = req.query
+        const values = []
+        let where = ""
+        if (search) {
+            values.push(`%${search}%`)
+            where = `WHERE (name ILIKE $1 OR company ILIKE $1)`
+        }
+        const result = await pool.query(
+            `SELECT * FROM attendees ${where} ORDER BY name ASC`,
+            values
+        )
+        res.json(result.rows)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: "Failed to fetch attendees" })
+    }
+})
+
+// ADD an attendee (walk-in arrives already confirmed)
+app.post("/attendees", async (req, res) => {
+    try {
+        const { name, company, role, is_walk_in } = req.body
+        const walkIn = Boolean(is_walk_in)
+        const result = await pool.query(
+            `INSERT INTO attendees (name, company, role, is_walk_in, checked_in, checked_in_at)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [name, company || null, role || null, walkIn, walkIn, walkIn ? new Date() : null]
+        )
+        res.status(201).json(result.rows[0])
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: "Failed to add attendee" })
+    }
+})
+
+// UPDATE an attendee's details (name/company/role) — does NOT touch check-in status
+app.put("/attendees/:id", async (req, res) => {
+    try {
+        const { name, company, role } = req.body
+        const result = await pool.query(
+            `UPDATE attendees SET name = $1, company = $2, role = $3
+             WHERE id = $4 RETURNING *`,
+            [name, company || null, role || null, req.params.id]
+        )
+        if (result.rows.length === 0)
+            return res.status(404).json({ error: "Attendee not found" })
+        res.json(result.rows[0])
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: "Failed to update attendee" })
+    }
+})
+
+// CHECK IN / undo (send { checked_in: true } to confirm, false to undo)
+app.patch("/attendees/:id/checkin", async (req, res) => {
+    try {
+        const confirm = Boolean(req.body.checked_in)
+        const result = await pool.query(
+            `UPDATE attendees SET checked_in = $1, checked_in_at = $2
+             WHERE id = $3 RETURNING *`,
+            [confirm, confirm ? new Date() : null, req.params.id]
+        )
+        if (result.rows.length === 0)
+            return res.status(404).json({ error: "Attendee not found" })
+        res.json(result.rows[0])
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: "Failed to update attendee" })
+    }
+})
+
+// DELETE an attendee (e.g. remove a mistaken walk-in)
+app.delete("/attendees/:id", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "DELETE FROM attendees WHERE id = $1 RETURNING *",
+            [req.params.id]
+        )
+        if (result.rows.length === 0)
+            return res.status(404).json({ error: "Attendee not found" })
+        res.json({ message: "Attendee deleted" })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: "Failed to delete attendee" })
+    }
+})
+
 // DELETE a client
 app.delete("/clients/:id", async (req, res) => {
     try {
