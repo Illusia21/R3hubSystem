@@ -26,7 +26,7 @@ export function Tabletoolbar({ onClientAdded, category, search, onCategoryChange
                 mode="add"
                 onSaved={onClientAdded}
                 trigger={
-                    <Button variant="outline" className="cursor-pointer">
+                    <Button variant="outline" className="cursor-pointer bg-card">
                         <UserRoundPlus />
                         Add Client
                     </Button>
@@ -35,7 +35,7 @@ export function Tabletoolbar({ onClientAdded, category, search, onCategoryChange
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Select value={category || "all"} onValueChange={(v) => onCategoryChange(v === "all" ? "" : v)}>
-                    <SelectTrigger className="w-full sm:w-56 caret-transparent">
+                    <SelectTrigger className="w-full sm:w-56 caret-transparent bg-card">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -49,7 +49,7 @@ export function Tabletoolbar({ onClientAdded, category, search, onCategoryChange
                 <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        className="pl-9"
+                        className="pl-9 bg-card"
                         placeholder="Search..."
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { Search, UserRoundPlus, Loader2, ChevronLeft, ChevronRight, Pencil } from "lucide-react"
+import { Search, UserRoundPlus, Loader2, ChevronLeft, ChevronRight, Pencil, Users, CircleCheck, CircleCheckBig, Clock, Circle } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { toast } from "sonner"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
@@ -30,13 +33,45 @@ type Attendee = {
 
 function StatusPill({ confirmed }: { confirmed: boolean }) {
     return confirmed ? (
-        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
+        <Badge className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
             Confirmed
-        </span>
+        </Badge>
     ) : (
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+        <Badge className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
             Pending
-        </span>
+        </Badge>
+    )
+}
+
+function StatCard({ icon: Icon, iconClass, label, value, valueClass, badge, badgeClass, progress, barClass }: {
+    icon: LucideIcon
+    iconClass: string
+    label: string
+    value: number
+    valueClass: string
+    badge: string
+    badgeClass: string
+    progress: number
+    barClass: string
+}) {
+    return (
+        <Card>
+            <CardContent className="flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                    <div className={`flex size-10 items-center justify-center rounded-lg ${iconClass}`}>
+                        <Icon className="size-5" />
+                    </div>
+                    <Badge className={`rounded-full border-transparent ${badgeClass}`}>
+                        {badge}
+                    </Badge>
+                </div>
+                <div>
+                    <p className="text-xs font-medium tracking-wide text-muted-foreground">{label}</p>
+                    <p className={`mt-1 text-3xl font-bold ${valueClass}`}>{value}</p>
+                </div>
+                <Progress value={progress} className={`h-1.5 bg-muted ${barClass}`} />
+            </CardContent>
+        </Card>
     )
 }
 
@@ -177,6 +212,8 @@ export function EventAttendance() {
     const total = attendees.length
     const confirmed = attendees.filter((a) => a.checked_in).length
     const remaining = total - confirmed
+    const confirmedPct = total ? Math.round((confirmed / total) * 100) : 0
+    const remainingPct = total ? Math.round((remaining / total) * 100) : 0
 
     const term = search.trim().toLowerCase()
     const filtered = attendees.filter((a) => {
@@ -206,66 +243,82 @@ export function EventAttendance() {
         <div className="flex flex-col gap-4">
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <Card>
-                    <CardContent>
-                        <p className="text-xs font-medium tracking-wide text-muted-foreground">TOTAL EXPECTED</p>
-                        <p className="mt-2 text-3xl font-bold">{total}</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <p className="text-xs font-medium tracking-wide text-muted-foreground">CONFIRMED</p>
-                        <p className="mt-2 text-3xl font-bold text-[#f15a24]">{confirmed}</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <p className="text-xs font-medium tracking-wide text-muted-foreground">REMAINING</p>
-                        <p className="mt-2 text-3xl font-bold text-[#0F2342]">{remaining}</p>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Search + status filter + Add walk-in */}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <div className="relative w-full sm:max-w-sm">
-                        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input className="pl-9" placeholder="Search attendee name or company..."
-                            value={search} onChange={(e) => setSearch(e.target.value)} />
-                    </div>
-                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "all" | "pending" | "confirmed")}>
-                        <SelectTrigger className="w-full sm:w-44 caret-transparent">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All statuses</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <AttendeeDialog
-                    mode="add"
-                    onSaved={(a) => setAttendees((prev) => [a, ...prev])}
-                    trigger={
-                        <Button className="bg-[#f15a24] hover:bg-[#f15a24]/90 text-white cursor-pointer">
-                            <UserRoundPlus /> Add Walk-in Guest
-                        </Button>
-                    }
+                <StatCard
+                    icon={Users}
+                    iconClass="bg-slate-100 text-slate-500"
+                    label="TOTAL ATTENDEES"
+                    value={total}
+                    valueClass="text-slate-500"
+                    badge="TARGET"
+                    badgeClass="bg-slate-100 text-slate-500"
+                    progress={100}
+                    barClass="[&>div]:bg-slate-500"
+                />
+                <StatCard
+                    icon={CircleCheck}
+                    iconClass="bg-green-100 text-green-700"
+                    label="CONFIRMED"
+                    value={confirmed}
+                    valueClass="text-green-700"
+                    badge={`${confirmedPct}% COMPLETE`}
+                    badgeClass="bg-green-100 text-green-700"
+                    progress={confirmedPct}
+                    barClass="[&>div]:bg-green-600"
+                />
+                <StatCard
+                    icon={Clock}
+                    iconClass="bg-muted text-muted-foreground"
+                    label="REMAINING"
+                    value={remaining}
+                    valueClass="text-[#0F2342]"
+                    badge="PENDING"
+                    badgeClass="bg-muted text-muted-foreground"
+                    progress={remainingPct}
+                    barClass="[&>div]:bg-[#0F2342]"
                 />
             </div>
 
-            {/* Table */}
-            <div className="rounded-md border">
-                <Table>
+            {/* One unified card: toolbar header + table + pagination */}
+            <div className="rounded-md border bg-card">
+                {/* Toolbar header band */}
+                <div className="flex flex-col gap-2 border-b p-3 sm:flex-row sm:items-center">
+                    <div className="relative w-full sm:flex-1">
+                        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input className="bg-[#f6f7f9] pl-9" placeholder="Search attendee name or company..."
+                            value={search} onChange={(e) => setSearch(e.target.value)} />
+                    </div>
+
+                    <div className="flex gap-2">
+                        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "all" | "pending" | "confirmed")}>
+                            <SelectTrigger className="w-full sm:w-44 caret-transparent">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <AttendeeDialog
+                            mode="add"
+                            onSaved={(a) => setAttendees((prev) => [a, ...prev])}
+                            trigger={
+                                <Button className="bg-[#f15a24] hover:bg-[#f15a24]/90 text-white cursor-pointer">
+                                    <UserRoundPlus /> Add Walk-in Guest
+                                </Button>
+                            }
+                        />
+                    </div>
+                </div>
+
+                <Table className="table-fixed">
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="w-1/5">Name</TableHead>
+                            <TableHead className="w-1/5">Company</TableHead>
+                            <TableHead className="w-1/5">Role</TableHead>
+                            <TableHead className="w-1/5">Status</TableHead>
+                            <TableHead className="w-1/8 text-center">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -278,29 +331,31 @@ export function EventAttendance() {
                         ) : (
                             paged.map((att) => (
                                 <TableRow key={att.id}>
-                                    <TableCell className="font-medium">{att.name}</TableCell>
+                                    <TableCell className="font-medium whitespace-nowrap">{att.name}</TableCell>
                                     <TableCell>{att.company || "—"}</TableCell>
-                                    <TableCell>{att.role || "—"}</TableCell>
-                                    <TableCell><StatusPill confirmed={att.checked_in} /></TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
+                                    <TableCell className="whitespace-nowrap">{att.role || "—"}</TableCell>
+                                    <TableCell className="whitespace-nowrap"><StatusPill confirmed={att.checked_in} /></TableCell>
+                                    <TableCell className="text-right whitespace-nowrap">
+                                        <div className="flex justify-center gap-2">
                                             <AttendeeDialog
                                                 mode="edit"
                                                 attendee={att}
                                                 onSaved={(updated) => setAttendees((prev) => prev.map((x) => x.id === updated.id ? updated : x))}
                                                 trigger={<Button size="icon" variant="outline" className="cursor-pointer"><Pencil /></Button>}
                                             />
-                                            {att.checked_in ? (
-                                                <Button size="sm" variant="outline" className="cursor-pointer"
-                                                    onClick={() => toggleCheckIn(att)}>
-                                                    Undo
-                                                </Button>
-                                            ) : (
-                                                <Button size="sm" className="bg-[#f15a24] hover:bg-[#f15a24]/90 text-white cursor-pointer"
-                                                    onClick={() => toggleCheckIn(att)}>
-                                                    Confirm Attendance
-                                                </Button>
-                                            )}
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="cursor-pointer"
+                                                title={att.checked_in ? "Confirmed — click to undo" : "Confirm attendance"}
+                                                onClick={() => toggleCheckIn(att)}
+                                            >
+                                                {att.checked_in ? (
+                                                    <CircleCheckBig className="text-green-600" />
+                                                ) : (
+                                                    <Circle className="text-muted-foreground" />
+                                                )}
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

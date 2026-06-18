@@ -120,7 +120,7 @@ export function ClientTable({ refreshKey, category, search, onClientChanged }: {
     if (error) return <p className="p-4 text-red-500">{error}</p>
 
     return (
-        <div className="rounded-md border">
+        <div className="rounded-md border bg-card">
             {/* Pagination — now on top */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b px-3 py-3">
                 <span className="text-sm text-muted-foreground">
