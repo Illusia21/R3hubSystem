@@ -112,7 +112,7 @@ app.get("/attendees", async (req, res) => {
             where = `WHERE (name ILIKE $1 OR company ILIKE $1)`
         }
         const result = await pool.query(
-            `SELECT * FROM attendees ${where} ORDER BY name ASC`,
+            `SELECT * FROM attendees ${where} ORDER BY id DESC`,
             values
         )
         res.json(result.rows)

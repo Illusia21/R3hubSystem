@@ -240,7 +240,7 @@ export function EventAttendance() {
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "confirmed">("all")
     const [page, setPage] = useState(1)
-    const pageSize = 10
+    const pageSize = 50
 
     useEffect(() => {
         fetch(`${API_URL}/attendees`)
