@@ -125,12 +125,12 @@ app.get("/attendees", async (req, res) => {
 // ADD an attendee (walk-in arrives already confirmed)
 app.post("/attendees", async (req, res) => {
     try {
-        const { name, company, role, is_walk_in } = req.body
+        const { name, company, role, contact_number, email, is_walk_in } = req.body
         const walkIn = Boolean(is_walk_in)
         const result = await pool.query(
-            `INSERT INTO attendees (name, company, role, is_walk_in, checked_in, checked_in_at)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [name, company || null, role || null, walkIn, walkIn, walkIn ? new Date() : null]
+            `INSERT INTO attendees (name, company, role, contact_number, email, is_walk_in, checked_in, checked_in_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [name, company || null, role || null, contact_number || null, email || null, walkIn, walkIn, walkIn ? new Date() : null]
         )
         res.status(201).json(result.rows[0])
     } catch (err) {
@@ -142,11 +142,11 @@ app.post("/attendees", async (req, res) => {
 // UPDATE an attendee's details (name/company/role) — does NOT touch check-in status
 app.put("/attendees/:id", async (req, res) => {
     try {
-        const { name, company, role } = req.body
+        const { name, company, role, contact_number, email } = req.body
         const result = await pool.query(
-            `UPDATE attendees SET name = $1, company = $2, role = $3
-             WHERE id = $4 RETURNING *`,
-            [name, company || null, role || null, req.params.id]
+            `UPDATE attendees SET name = $1, company = $2, role = $3, contact_number = $4, email = $5
+             WHERE id = $6 RETURNING *`,
+            [name, company || null, role || null, contact_number || null, email || null, req.params.id]
         )
         if (result.rows.length === 0)
             return res.status(404).json({ error: "Attendee not found" })

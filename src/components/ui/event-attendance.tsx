@@ -5,9 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table"
-import {
     Dialog, DialogClose, DialogContent, DialogDescription,
     DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog"
@@ -25,6 +22,8 @@ type Attendee = {
     name: string
     company: string | null
     role: string | null
+    contact_number: string | null
+    email: string | null
     checked_in: boolean
     checked_in_at: string | null
     is_walk_in: boolean
@@ -40,6 +39,52 @@ function StatusPill({ confirmed }: { confirmed: boolean }) {
         <Badge className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
             Pending
         </Badge>
+    )
+}
+
+function getInitials(name: string) {
+    const parts = name.trim().split(/\s+/)
+    return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?"
+}
+
+function DetailRow({ label, value }: { label: string; value: string | null }) {
+    return (
+        <div className="flex justify-between gap-4">
+            <span className="text-muted-foreground">{label}</span>
+            <span className="text-right font-medium break-all">{value || "—"}</span>
+        </div>
+    )
+}
+
+function DetailDialog({ attendee }: { attendee: Attendee }) {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <button
+                    title="View details"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-300 cursor-pointer"
+                >
+                    {getInitials(attendee.name)}
+                </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Attendee Details</DialogTitle>
+                    <DialogDescription>Full information for this attendee.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-3 text-sm">
+                    <DetailRow label="Name" value={attendee.name} />
+                    <DetailRow label="Company" value={attendee.company} />
+                    <DetailRow label="Role" value={attendee.role} />
+                    <DetailRow label="Contact Number" value={attendee.contact_number} />
+                    <DetailRow label="Email" value={attendee.email} />
+                    <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Status</span>
+                        <StatusPill confirmed={attendee.checked_in} />
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }
 
@@ -86,6 +131,8 @@ function AttendeeDialog({ mode, attendee, trigger, onSaved }: {
         name: attendee?.name ?? "",
         company: attendee?.company ?? "",
         role: attendee?.role ?? "",
+        contact_number: attendee?.contact_number ?? "",
+        email: attendee?.email ?? "",
     })
     const [saving, setSaving] = useState(false)
     const [err, setErr] = useState("")
@@ -97,6 +144,8 @@ function AttendeeDialog({ mode, attendee, trigger, onSaved }: {
                 name: attendee?.name ?? "",
                 company: attendee?.company ?? "",
                 role: attendee?.role ?? "",
+                contact_number: attendee?.contact_number ?? "",
+                email: attendee?.email ?? "",
             })
             setErr("")
         }
@@ -157,6 +206,16 @@ function AttendeeDialog({ mode, attendee, trigger, onSaved }: {
                         <FieldLabel>Role</FieldLabel>
                         <Input value={form.role} placeholder="Role / position"
                             onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))} />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Contact Number</FieldLabel>
+                        <Input value={form.contact_number} placeholder="09XXXXXXXXX"
+                            onChange={(e) => setForm((f) => ({ ...f, contact_number: e.target.value }))} />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Email</FieldLabel>
+                        <Input type="email" value={form.email} placeholder="name@example.com"
+                            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
                     </Field>
                     {err && <p className="text-sm text-red-500">{err}</p>}
                 </FieldGroup>
@@ -278,8 +337,8 @@ export function EventAttendance() {
                 />
             </div>
 
-            {/* One unified card: toolbar header + table + pagination */}
-            <div className="rounded-md border bg-card">
+            {/* One unified card: toolbar header + name list + pagination */}
+            <div className="mx-auto w-full max-w-3xl rounded-md border bg-card">
                 {/* Toolbar header band */}
                 <div className="flex flex-col gap-2 border-b p-3 sm:flex-row sm:items-center">
                     <div className="relative w-full sm:flex-1">
@@ -311,58 +370,45 @@ export function EventAttendance() {
                     </div>
                 </div>
 
-                <Table className="table-fixed">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-1/5">Name</TableHead>
-                            <TableHead className="w-1/5">Company</TableHead>
-                            <TableHead className="w-1/5">Role</TableHead>
-                            <TableHead className="w-1/5">Status</TableHead>
-                            <TableHead className="w-1/8 text-center">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {paged.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
-                                    No attendees found.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            paged.map((att) => (
-                                <TableRow key={att.id}>
-                                    <TableCell className="font-medium whitespace-nowrap">{att.name}</TableCell>
-                                    <TableCell>{att.company || "—"}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{att.role || "—"}</TableCell>
-                                    <TableCell className="whitespace-nowrap"><StatusPill confirmed={att.checked_in} /></TableCell>
-                                    <TableCell className="text-right whitespace-nowrap">
-                                        <div className="flex justify-center gap-2">
-                                            <AttendeeDialog
-                                                mode="edit"
-                                                attendee={att}
-                                                onSaved={(updated) => setAttendees((prev) => prev.map((x) => x.id === updated.id ? updated : x))}
-                                                trigger={<Button size="icon" variant="outline" className="cursor-pointer"><Pencil /></Button>}
-                                            />
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="cursor-pointer"
-                                                title={att.checked_in ? "Confirmed — click to undo" : "Confirm attendance"}
-                                                onClick={() => toggleCheckIn(att)}
-                                            >
-                                                {att.checked_in ? (
-                                                    <CircleCheckBig className="text-green-600" />
-                                                ) : (
-                                                    <Circle className="text-muted-foreground" />
-                                                )}
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                {/* Name-only list */}
+                <div>
+                    {paged.length === 0 ? (
+                        <div className="py-8 text-center text-muted-foreground">No attendees found.</div>
+                    ) : (
+                        paged.map((att) => (
+                            <div
+                                key={att.id}
+                                className="flex items-center justify-between gap-3 border-b px-4 py-3 last:border-b-0 hover:bg-muted/50 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <DetailDialog attendee={att} />
+                                    <span className="font-medium">{att.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <AttendeeDialog
+                                        mode="edit"
+                                        attendee={att}
+                                        onSaved={(updated) => setAttendees((prev) => prev.map((x) => x.id === updated.id ? updated : x))}
+                                        trigger={<Button size="icon" variant="outline" className="cursor-pointer"><Pencil /></Button>}
+                                    />
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="cursor-pointer"
+                                        title={att.checked_in ? "Confirmed — click to undo" : "Confirm attendance"}
+                                        onClick={() => toggleCheckIn(att)}
+                                    >
+                                        {att.checked_in ? (
+                                            <CircleCheckBig className="text-green-600" />
+                                        ) : (
+                                            <Circle className="text-muted-foreground" />
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
 
                 {/* Pagination */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t px-3 py-3 text-sm">
